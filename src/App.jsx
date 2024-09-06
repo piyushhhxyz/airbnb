@@ -4,20 +4,24 @@ import Header from './components/Header';
 import CategoryIcons from './components/CategoryIcons';
 import ExperienceCard from './components/ExperienceCard';
 import Footer from './components/Footer';
+import "react-datepicker/dist/react-datepicker.css";
 
 function App() {
   const [mainExperiences, setMainExperiences] = useState([]);
   const [pastExperiences, setPastExperiences] = useState([]);
+  const [filteredMain, setFilteredMain] = useState([]);
+  const [filteredPast, setFilteredPast] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simulating API call to fetch experiences
-    const fetchExperiences = async () => {
-      setLoading(true);
-      // Simulated delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      const main = [
-        { id: 1, image: '/images/main/1.png', title: "Stay in Prince's Purple Rain house", host: "Hosted by Wendy and Lisa", status: "Coming September" },
+    fetchExperiences();
+  }, []);
+
+  const fetchExperiences = async () => {
+    setLoading(true);
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    const main = [
+      { id: 1, image: '/images/main/1.png', title: "Stay in Prince's Purple Rain house", host: "Hosted by Wendy and Lisa", status: "Coming September" },
         { id: 2, image: '/images/main/2.png', title: "Join a living room session with Doja", host: "Hosted by Doja Cat", status: "Coming October" },
         { id: 3, image: '/images/main/3.png', title: "Sleepover at Polly Pocket's Compact", host: "Hosted by Polly Pocket", status: "Booking closed" },
         { id: 4, image: '/images/main/4.png', title: "Playdate at Polly Pocket's Compact", host: "Hosted by Polly Pocket", status: "Booking closed" },
@@ -25,9 +29,9 @@ function App() {
         { id: 6, image: '/images/main/6.png', title: "UFO Encounter Experience", host: "Hosted by Alien Enthusiasts", status: "Limited spots available" },
         { id: 10, image: '/images/past-experience/10.webp', title: "Drift off in the Up house", host: "Hosted by Carl Fredricksen", status: "Sold out" },
         { id: 11, image: '/images/past-experience/11.webp', title: "Experience 11", host: "Host 11", status: "Sold out" },
-      ];
-      const past = [
-        { id: 1, image: '/images/past-experience/1.webp', title: "Live like Bollywood star Janhvi Kapoor", host: "Hosted by Janhvi Kapoor", status: "Sold out" },
+    ];
+    const past = [
+      { id: 1, image: '/images/past-experience/1.webp', title: "Live like Bollywood star Janhvi Kapoor", host: "Hosted by Janhvi Kapoor", status: "Sold out" },
         { id: 2, image: '/images/past-experience/2.webp', title: "Open the Olympic Games at Musée d'Orsay", host: "Hosted by Mathieu Lehanneur", status: "Sold out" },
         { id: 3, image: '/images/past-experience/3.webp', title: "Wake up in the Musée d'Orsay", host: "Hosted by Mathieu Lehanneur", status: "Sold out" },
         { id: 4, image: '/images/past-experience/4.webp', title: "Make core memories with Inside Out 2", host: "Hosted by Joy", status: "Sold out" },
@@ -39,23 +43,34 @@ function App() {
         { id: 10, image: '/images/past-experience/10.webp', title: "Drift off in the Up house", host: "Hosted by Carl Fredricksen", status: "Sold out" },
         { id: 11, image: '/images/past-experience/11.webp', title: "Experience 11", host: "Host 11", status: "Sold out" },
         { id: 12, image: '/images/past-experience/12.webp', title: "Experience 12", host: "Host 12", status: "Sold out" }
-      ];
-      setMainExperiences(main);
-      setPastExperiences(past);
-      setLoading(false);
-    };
+    ];
+    setMainExperiences(main);
+    setPastExperiences(past);
+    setFilteredMain(main);
+    setFilteredPast(past);
+    setLoading(false);
+  };
 
-    fetchExperiences();
-  }, []);
+  const handleSearch = (searchTerm) => {
+    const filteredMain = mainExperiences.filter(exp => 
+      exp.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      exp.host.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    const filteredPast = pastExperiences.filter(exp => 
+      exp.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      exp.host.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredMain(filteredMain);
+    setFilteredPast(filteredPast);
+  };
 
   const handleCategoryClick = (category) => {
     setLoading(true);
-    // Simulate API call and reordering of all experiences
     setTimeout(() => {
       const allExperiences = [...mainExperiences, ...pastExperiences];
       const shuffled = allExperiences.sort(() => 0.5 - Math.random());
-      setMainExperiences(shuffled.slice(0, 6));
-      setPastExperiences(shuffled.slice(6));
+      setFilteredMain(shuffled.slice(0, 6));
+      setFilteredPast(shuffled.slice(6));
       setLoading(false);
     }, 1000);
   };
@@ -70,7 +85,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Header />
+      <Header onSearch={handleSearch} />
       <CategoryIcons onCategoryClick={handleCategoryClick} />
       <main className="container mx-auto px-4 py-8">
         <motion.section 
@@ -94,7 +109,7 @@ function App() {
                   </motion.div>
                 ))
               ) : (
-                mainExperiences.map((exp) => (
+                filteredMain.map((exp) => (
                   <motion.div
                     key={exp.id}
                     initial={{ opacity: 0 }}
@@ -132,7 +147,7 @@ function App() {
                   </motion.div>
                 ))
               ) : (
-                pastExperiences.map((exp) => (
+                filteredPast.map((exp) => (
                   <motion.div
                     key={exp.id}
                     initial={{ opacity: 0 }}
