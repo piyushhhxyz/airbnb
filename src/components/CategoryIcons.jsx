@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FaTicketAlt, FaTractor, FaMountain, FaSwimmingPool, FaUmbrellaBeach, FaHome, FaWater, FaTree, FaFire, FaLeaf, FaSnowflake, FaGlobeAmericas, FaBed } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 
@@ -18,21 +18,34 @@ const categories = [
   { name: 'Rooms', icon: FaBed },
 ];
 
-function CategoryIcons() {
+function CategoryIcons({ onCategoryClick }) {
+  const [selectedCategory, setSelectedCategory] = useState(null);
+
+  const handleCategoryClick = (category) => {
+    setSelectedCategory(category);
+    onCategoryClick(category);
+  };
+
   return (
-    <div className="flex space-x-10 overflow-x-auto py-6 px-8 hide-scrollbar border-b">
+    <motion.div 
+      className="flex space-x-10 overflow-x-auto py-6 px-8 hide-scrollbar border-b"
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
       {categories.map((category, index) => (
         <motion.div 
           key={index} 
-          className="flex flex-col items-center space-y-2 cursor-pointer min-w-[56px]"
+          className={`flex flex-col items-center space-y-2 cursor-pointer min-w-[56px] ${selectedCategory === category.name ? 'border-b-2 border-black' : ''}`}
           whileHover={{ y: -5 }}
           whileTap={{ scale: 0.95 }}
+          onClick={() => handleCategoryClick(category.name)}
         >
-          <category.icon className="text-2xl text-gray-500" />
-          <p className="text-xs text-gray-600 whitespace-nowrap">{category.name}</p>
+          <category.icon className={`text-2xl ${selectedCategory === category.name ? 'text-black' : 'text-gray-500'}`} />
+          <p className={`text-xs ${selectedCategory === category.name ? 'text-black font-semibold' : 'text-gray-600'} whitespace-nowrap`}>{category.name}</p>
         </motion.div>
       ))}
-    </div>
+    </motion.div>
   );
 }
 
